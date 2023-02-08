@@ -11,8 +11,8 @@ pool:
 
 steps:
 - script: |
-    dotnet restore
-    dotnet build --configuration Release
+    dotnet restore '**/*.sln'
+    dotnet build --configuration Release '**/*.sln'
 
 - task: DotNetCoreCLI@2
   inputs:
