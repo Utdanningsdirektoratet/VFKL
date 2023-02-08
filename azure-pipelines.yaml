@@ -10,6 +10,10 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- task: UseDotNet@2
+  inputs:
+    version: '6.x'
+
 - script: |
     dotnet restore '**/*.sln'
     dotnet build --configuration Release '**/*.sln'
