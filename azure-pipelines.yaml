@@ -14,10 +14,6 @@ steps:
   inputs:
     version: '6.x'
 
-#- script: |
-#    dotnet restore '**/*.sln'
-#    dotnet build --configuration Release '**/*.sln'
-
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
@@ -32,6 +28,7 @@ steps:
       projects: '**/*.sln'
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet publish'
   inputs:
     command: publish
     arguments: '--configuration Release --output publish_output'
@@ -45,7 +42,7 @@ steps:
   inputs:
     rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
     includeRootFolder: false
-    archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+    archiveFile: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId).zip"
 
 - task: PublishBuildArtifacts@1
   inputs:
