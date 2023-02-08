@@ -43,8 +43,8 @@ steps:
     rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
     includeRootFolder: false
     archiveFile: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip"
-
+  
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: $(arifactFile)
-    artifactName: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip"
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip'
+    artifactName: 'drop'
