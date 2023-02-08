@@ -6,6 +6,11 @@
 trigger:
 - main
 
+name: '$(Build.BuildId)_$(Build.SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
+
+variables:
+  artifactFile: "$(System.DefaultWorkingDirectory)/vfkl-$(name).zip"
+
 pool:
   vmImage: 'windows-latest'
 
@@ -42,9 +47,9 @@ steps:
   inputs:
     rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
     includeRootFolder: false
-    archiveFile: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId).zip"
+    archiveFile: $(arifactFile)
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
+    PathtoPublish: $(arifactFile)
     artifactName: 'drop'
