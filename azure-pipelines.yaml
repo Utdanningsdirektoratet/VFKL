@@ -14,9 +14,22 @@ steps:
   inputs:
     version: '6.x'
 
-- script: |
-    dotnet restore '**/*.sln'
-    dotnet build --configuration Release '**/*.sln'
+#- script: |
+#    dotnet restore '**/*.sln'
+#    dotnet build --configuration Release '**/*.sln'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
+  inputs:
+    command: restore
+    projects: '**/*.sln'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+      command: build
+      arguments: '--configuration Release' 
+      projects: '**/*.sln'
 
 - task: DotNetCoreCLI@2
   inputs:
