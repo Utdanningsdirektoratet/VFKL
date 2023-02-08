@@ -6,8 +6,6 @@
 trigger:
 - main
 
-name: '$(Build.BuildId)_$(Build.SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
-
 pool:
   vmImage: 'windows-latest'
 
