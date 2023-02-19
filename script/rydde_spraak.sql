@@ -1,5 +1,5 @@
 -- Legg inn manglende rader i assessment.categorytextresources
-IF NOT EXISTS(SELECT * assessment.categorytextresources WHERE language_id_fk IN (4155)) THEN
+IF NOT EXISTS(SELECT * FROM assessment.categorytextresources WHERE language_id_fk IN (4155)) THEN
 	INSERT INTO assessment.categorytextresources(category_id_fk, name, description, language_id_fk)
 	VALUES (1, 'design', 'Design/hábbmim', 4155);
 	INSERT INTO assessment.categorytextresources(category_id_fk, name, description, language_id_fk)
@@ -7,7 +7,7 @@ IF NOT EXISTS(SELECT * assessment.categorytextresources WHERE language_id_fk IN 
 	INSERT INTO assessment.categorytextresources(category_id_fk, name, description, language_id_fk)
 	VALUES (3, 'oahppoplánajt', 'Gåktu oahppoplánajt adnet', 4155);
 END IF;
-IF NOT EXISTS(SELECT * assessment.categorytextresources WHERE language_id_fk IN (6203)) THEN
+IF NOT EXISTS(SELECT * FROM assessment.categorytextresources WHERE language_id_fk IN (6203)) THEN
 	INSERT INTO assessment.categorytextresources(category_id_fk, name, description, language_id_fk)
 	VALUES (1, 'hammoe', 'Hammoe/hammoedimmie', 6203);
 	INSERT INTO assessment.categorytextresources(category_id_fk, name, description, language_id_fk)
@@ -21,7 +21,7 @@ UPDATE assessment.answertypetextresources
 WHERE language_id_fk = 1083
   AND description in ('Helt enig', 'Delvis enig', 'Delvis uenig', 'Helt uenig', 'ønsker ikke å svare/ikke aktuelt');
 
-IF NOT EXISTS(SELECT * assessment.answertypetextresources WHERE language_id_fk IN (1083)) THEN
+IF NOT EXISTS(SELECT * FROM assessment.answertypetextresources WHERE language_id_fk IN (1083)) THEN
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
 	VALUES (1, 'heltenig', 'Áibbas ovttaoaivilis', 1083);
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
@@ -34,7 +34,7 @@ IF NOT EXISTS(SELECT * assessment.answertypetextresources WHERE language_id_fk I
 	VALUES (5, 'ikkeaktuelt', 'In hálit vástidit / ii áigeguovdil', 1083);
 END IF;
 
-IF NOT EXISTS(SELECT * assessment.answertypetextresources WHERE language_id_fk IN (6203)) THEN
+IF NOT EXISTS(SELECT * FROM assessment.answertypetextresources WHERE language_id_fk IN (6203)) THEN
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
 	VALUES (1, 'heltenig', 'Eevre sïemes', 6203);
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
@@ -47,7 +47,7 @@ IF NOT EXISTS(SELECT * assessment.answertypetextresources WHERE language_id_fk I
 	VALUES (5, 'ikkeaktuelt', 'Im sïjhth vaestiedidh/Ij sjyöhtehke', 6203);
 END IF;
 
-IF NOT EXISTS(SELECT * assessment.answertypetextresources WHERE language_id_fk IN (4155)) THEN
+IF NOT EXISTS(SELECT * FROM assessment.answertypetextresources WHERE language_id_fk IN (4155)) THEN
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
 	VALUES (1, 'heltenig', 'Guorrasav ållu', 4155);
 	INSERT INTO assessment.answertypetextresources(answertype_id_fk, name, description, language_id_fk)
