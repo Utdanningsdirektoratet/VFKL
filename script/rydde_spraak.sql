@@ -60,3 +60,9 @@ IF NOT EXISTS(SELECT * FROM assessment.answertypetextresources WHERE language_id
 	VALUES (4, 'ikkeaktuelt', 'Iv sidá vásstedit / ij la ájggeguovddelis', 4155);
 END IF;
 
+-- Justere feilaktig answertype-fk for en av "ikkeaktuelt"-radene
+UPDATE assessment.answertypetextresources
+   SET answertype_id_fk = 5
+  WHERE name = 'ikkeaktuelt'
+  AND answertype_id_fk = 4
+;
