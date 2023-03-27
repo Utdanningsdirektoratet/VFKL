@@ -323,6 +323,7 @@ namespace VFKLCore.Functions
                             }
 
                             invitation_body.Append($"<a href=\"{_settings.EmailUrl}{invitation.GruppeVurderingsID}\">Klikk her for å starte din vurdering</a><br><br>");
+                            invitation_body.Append("Bruk lenken over når du skal gjøre en vurdering. Dersom du åpner skjemaet for individuell vurdering, vil dine svar ikke bli en del av vurderingene som inngår i et kollektivt arbeid sammen med kollegaer.<br><br>");
                             invitation_body.Append($"Du kan ikke svare på denne eposten. Dersom du har spørsmål, ta kontakt med {invitation.Navn}. Dersom du opplever tekniske utfordringer, kontakt vfklsupport@udir.no");
 
                             // Buliding the confirmation text that is to be sent to the owner of the group assessment
