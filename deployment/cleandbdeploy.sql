@@ -252,7 +252,7 @@ VALUES(1,'design','Design/hábmen', 1083),
 	  (3,'læreplanverk','Bruk av læreplanverket',2068),
 	  (4,'føringer','Føringar frå læreplanverket',2068),
 	  (5,'kvalitet','Utforming og tekstleg kvalitet',2068),
-	  (6,'kopling','Kopling til læreplanverket',2068);
+	  (6,'kopling','Kopling til læreplanverket',2068),
       (1,'hammoe','Hammoe/hammoedimmie',6203),
 	  (2,'pedagogisk','Pedagogeles jïh didaktihkeles kvaliteete',6203),
 	  (3,'learoesoejkesje','Åtnoe learoesoejkesje-vierhkeste',6203),
@@ -280,7 +280,7 @@ VALUES(1,'heltenig','Áibbas ovttaoaivilis', 1083),
       (2,'delvisenig','Belohahkii ovttaoaivilis',1083),
       (3,'delvisuenig','Belohahkii sierramielalaš',1083),
 	  (4,'heltuenig','Áibbas sierramielalaš',1083),
-	  (5,'ikkeaktuelt','In hálit vástidit / ii áigeguovdil',1083)
+	  (5,'ikkeaktuelt','In hálit vástidit / ii áigeguovdil',1083),
 	  (1,'heltenig','Heilt enig', 2068),
       (2,'delvisenig','Delvis enig',2068),
       (3,'delvisuenig','Delvis uenig',2068),
@@ -469,6 +469,12 @@ VALUES
 	  (20,'Oahpponævon la buorre progresjåvnnå fága máhtudakulmij gáktuj',4155),
 	  (21,'Oahpponævvo doarjju oahppe ja åhpadiddje bargov åhpadattijn árvustallamijn',4155);
 
+CREATE TABLE public."VersionInfo" (
+    "Version" bigint NOT NULL,
+    "AppliedOn" timestamp without time zone,
+    "Description" character varying(1024)
+);
+
 
 -- procedures
 
@@ -561,5 +567,5 @@ CREATE OR REPLACE PROCEDURE assessment.get(
 	instanceid character varying)
 LANGUAGE 'sql'
 AS $BODY$
-SELECT * FROM assessment where instance_id=instanceid;
+SELECT * FROM assessment.assessment where instance_id=instanceid;
 $BODY$;
