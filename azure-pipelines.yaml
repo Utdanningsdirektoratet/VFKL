@@ -6,45 +6,75 @@
 trigger:
 - main
 
-pool:
-  vmImage: 'windows-latest'
+variables:
+  dockerRegistryServiceConnection: 'ACR-VFKL-SC'
+  vfklmigratorrepository: 'vfkl-migrator'  
+  vfklMigratorDockerfilePath: '$(Build.SourcesDirectory)/VFKL.Migrator/Dockerfile'  
+  containerRegistry: 'acrvfkl.azurecr.io'  
+  tag: '$(Build.BuildId)'
 
-steps:
-#- task: UseDotNet@2
-#  inputs:
-#    version: '6.x'
+stages:
+  - stage: Build function
+    pool:
+      vmImage: 'windows-latest'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore'
-  inputs:
-    command: restore
-    projects: '**/*.sln'
+    jobs:
+      - job: Build
+        steps:
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
-  inputs:
-      command: build
-      arguments: '--configuration Release' 
-      projects: '**/*.sln'
+        - task: DotNetCoreCLI@2
+          displayName: 'dotnet restore'
+          inputs:
+            command: restore
+            projects: '**/*.sln'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish'
-  inputs:
-    command: publish
-    arguments: '--configuration Release --output publish_output'
-    projects: '**/*.sln'
-    publishWebProjects: false
-    modifyOutputPath: false
-    zipAfterPublish: false
+        - task: DotNetCoreCLI@2
+          displayName: 'dotnet build'
+          inputs:
+              command: build
+              arguments: '--configuration Release' 
+              projects: '**/*.sln'
 
-- task: ArchiveFiles@2
-  displayName: "Archive files"
-  inputs:
-    rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
-    includeRootFolder: false
-    archiveFile: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip"
-  
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip'
-    artifactName: 'drop'
+        - task: DotNetCoreCLI@2
+          displayName: 'dotnet publish'
+          inputs:
+            command: publish
+            arguments: '--configuration Release --output publish_output'
+            projects: '**/*.sln'
+            publishWebProjects: false
+            modifyOutputPath: false
+            zipAfterPublish: false
+
+        - task: ArchiveFiles@2
+          displayName: "Archive files"
+          inputs:
+            rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
+            includeRootFolder: false
+            archiveFile: "$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip"
+          
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip'
+            artifactName: 'drop'
+
+  - stage: Build vfkl-migrator
+    pool: 
+      vmimagename: 'ubuntu-latest'
+    jobs:
+      - job:
+        steps:
+        - task: Docker@2
+          displayName: vfkl-migrator
+          inputs:
+            command: buildAndPush
+            repository: $(vfklMigratorRepository)
+            dockerfile: $(vfklMigratorDockerfilePath)
+            containerRegistry: $(dockerRegistryServiceConnection)
+            buildContext: '.'
+            ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+              tags: |
+                latest
+                $(tag)
+            ${{ else }}:
+              tags: |
+                $(tag)

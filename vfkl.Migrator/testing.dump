@@ -1,0 +1,1562 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.9
+-- Dumped by pg_dump version 15.2 (Homebrew)
+
+-- Started on 2023-03-24 11:34:34 CET
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 7 (class 2615 OID 27154)
+-- Name: assessment; Type: SCHEMA; Schema: -; Owner: vfkladmin
+--
+
+CREATE SCHEMA assessment;
+
+
+ALTER SCHEMA assessment OWNER TO vfkladmin;
+
+--
+-- TOC entry 6 (class 2615 OID 27153)
+-- Name: invitations; Type: SCHEMA; Schema: -; Owner: vfkladmin
+--
+
+CREATE SCHEMA invitations;
+
+
+ALTER SCHEMA invitations OWNER TO vfkladmin;
+
+--
+-- TOC entry 5 (class 2615 OID 2200)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: azure_pg_admin
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO azure_pg_admin;
+
+--
+-- TOC entry 8 (class 2615 OID 27155)
+-- Name: userprofile; Type: SCHEMA; Schema: -; Owner: vfkladmin
+--
+
+CREATE SCHEMA userprofile;
+
+
+ALTER SCHEMA userprofile OWNER TO vfkladmin;
+
+--
+-- TOC entry 230 (class 1255 OID 27343)
+-- Name: get(character varying); Type: PROCEDURE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE PROCEDURE assessment.get(instanceid character varying)
+    LANGUAGE sql
+    AS $$
+SELECT * FROM assessment.assessment where instance_id=instanceid;
+$$;
+
+
+ALTER PROCEDURE assessment.get(instanceid character varying) OWNER TO vfkladmin;
+
+--
+-- TOC entry 229 (class 1255 OID 27342)
+-- Name: insert_answers(integer, integer, integer, character varying); Type: PROCEDURE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE PROCEDURE assessment.insert_answers(assessmentid integer, questionid integer, answertypeid integer, reason character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	IF NOT EXISTS(SELECT * FROM assessment.answers where assessment_id_fk =assessmentid and question_id_fk = questionid) THEN
+		INSERT INTO assessment.answers (assessment_id_fk, question_id_fk,answertype_id_fk,reason) VALUES (assessmentid, questionid,answertypeid,reason);
+	END IF;
+END
+$$;
+
+
+ALTER PROCEDURE assessment.insert_answers(assessmentid integer, questionid integer, answertypeid integer, reason character varying) OWNER TO vfkladmin;
+
+--
+-- TOC entry 228 (class 1255 OID 27341)
+-- Name: insert_assessment(integer, character varying, character varying, character varying, timestamp without time zone, character varying, character varying); Type: PROCEDURE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE PROCEDURE assessment.insert_assessment(userid integer, teachingaid character varying, instanceid character varying, groupassessmentid character varying, createddatetime timestamp without time zone, usercomments character varying, teachingaidsupplier character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NOT EXISTS(SELECT * FROM assessment.assessment where instance_id = instanceid) THEN
+INSERT INTO assessment.assessment (user_id_fk, teachingaid,instance_id, groupassessment_id_fk, created_datetime, user_comments, teachingaid_supplier) VALUES (userid, teachingaid,instanceid,groupassessmentid, createddatetime, usercomments, teachingaidsupplier);
+END IF;
+END
+$$;
+
+
+ALTER PROCEDURE assessment.insert_assessment(userid integer, teachingaid character varying, instanceid character varying, groupassessmentid character varying, createddatetime timestamp without time zone, usercomments character varying, teachingaidsupplier character varying) OWNER TO vfkladmin;
+
+--
+-- TOC entry 227 (class 1255 OID 27340)
+-- Name: insert_invitation(integer, character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, character varying, character varying); Type: PROCEDURE; Schema: invitations; Owner: vfkladmin
+--
+
+CREATE PROCEDURE invitations.insert_invitation(userid integer, gvid character varying, frist character varying, laeremiddel character varying, laereplan character varying, mottakereposter character varying, opprettetdato character varying, assessmenttypeid integer, laereplankode character varying, bortvalgtsporsmaal character varying, laeremiddelleverandor character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NOT EXISTS(SELECT * FROM invitations.invitations where gv_id = gvid) THEN
+INSERT INTO invitations.invitations (user_id_fk, gv_id, frist, laeremiddel, laereplan, mottaker_eposter, opprettet_dato,assessmenttype_id_fk,laereplankode,bortvalgtsporsmaal, laeremiddel_leverandor)
+VALUES (userid, gvid, frist, laeremiddel, laereplan, mottakereposter,opprettetdato,assessmenttypeid,laereplankode,bortvalgtsporsmaal, laeremiddelleverandor);
+END IF;
+END
+$$;
+
+
+ALTER PROCEDURE invitations.insert_invitation(userid integer, gvid character varying, frist character varying, laeremiddel character varying, laereplan character varying, mottakereposter character varying, opprettetdato character varying, assessmenttypeid integer, laereplankode character varying, bortvalgtsporsmaal character varying, laeremiddelleverandor character varying) OWNER TO vfkladmin;
+
+--
+-- TOC entry 226 (class 1255 OID 27339)
+-- Name: insert_user(character varying, character varying); Type: PROCEDURE; Schema: userprofile; Owner: vfkladmin
+--
+
+CREATE PROCEDURE userprofile.insert_user(feideid character varying, username character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	IF NOT EXISTS(SELECT * FROM userprofile.userprofile where feide_id =feideid) THEN
+		INSERT INTO userprofile.userprofile (feide_id, name) VALUES (feideid,username);
+	END IF;
+END
+$$;
+
+
+ALTER PROCEDURE userprofile.insert_user(feideid character varying, username character varying) OWNER TO vfkladmin;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 218 (class 1259 OID 27257)
+-- Name: answers; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.answers (
+    id integer NOT NULL,
+    assessment_id_fk integer NOT NULL,
+    question_id_fk integer NOT NULL,
+    answertype_id_fk integer NOT NULL,
+    reason character varying
+);
+
+
+ALTER TABLE assessment.answers OWNER TO vfkladmin;
+
+--
+-- TOC entry 217 (class 1259 OID 27255)
+-- Name: answers_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.answers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.answers_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3737 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: answers_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.answers_id_seq OWNED BY assessment.answers.id;
+
+
+--
+-- TOC entry 210 (class 1259 OID 27188)
+-- Name: answertype; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.answertype (
+    answertype_id integer NOT NULL,
+    name character varying NOT NULL,
+    description character varying NOT NULL
+);
+
+
+ALTER TABLE assessment.answertype OWNER TO vfkladmin;
+
+--
+-- TOC entry 209 (class 1259 OID 27186)
+-- Name: answertype_answertype_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.answertype_answertype_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.answertype_answertype_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3738 (class 0 OID 0)
+-- Dependencies: 209
+-- Name: answertype_answertype_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.answertype_answertype_id_seq OWNED BY assessment.answertype.answertype_id;
+
+
+--
+-- TOC entry 222 (class 1259 OID 27304)
+-- Name: answertypetextresources; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.answertypetextresources (
+    id integer NOT NULL,
+    answertype_id_fk integer NOT NULL,
+    name character varying NOT NULL,
+    description character varying,
+    language_id_fk integer NOT NULL
+);
+
+
+ALTER TABLE assessment.answertypetextresources OWNER TO vfkladmin;
+
+--
+-- TOC entry 221 (class 1259 OID 27302)
+-- Name: answertypetextresources_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.answertypetextresources_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.answertypetextresources_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3739 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: answertypetextresources_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.answertypetextresources_id_seq OWNED BY assessment.answertypetextresources.id;
+
+
+--
+-- TOC entry 216 (class 1259 OID 27236)
+-- Name: assessment; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.assessment (
+    assessment_id integer NOT NULL,
+    user_id_fk integer NOT NULL,
+    teachingaid character varying(1000) NOT NULL,
+    instance_id character varying NOT NULL,
+    groupassessment_id_fk character varying,
+    created_datetime timestamp without time zone
+);
+
+
+ALTER TABLE assessment.assessment OWNER TO vfkladmin;
+
+--
+-- TOC entry 215 (class 1259 OID 27234)
+-- Name: assessment_assessment_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.assessment_assessment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.assessment_assessment_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3740 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: assessment_assessment_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.assessment_assessment_id_seq OWNED BY assessment.assessment.assessment_id;
+
+
+--
+-- TOC entry 208 (class 1259 OID 27177)
+-- Name: category; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.category (
+    category_id integer NOT NULL,
+    name character varying NOT NULL,
+    description character varying NOT NULL
+);
+
+
+ALTER TABLE assessment.category OWNER TO vfkladmin;
+
+--
+-- TOC entry 207 (class 1259 OID 27175)
+-- Name: category_category_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.category_category_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.category_category_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3741 (class 0 OID 0)
+-- Dependencies: 207
+-- Name: category_category_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.category_category_id_seq OWNED BY assessment.category.category_id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 27283)
+-- Name: categorytextresources; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.categorytextresources (
+    id integer NOT NULL,
+    category_id_fk integer NOT NULL,
+    name character varying NOT NULL,
+    description character varying,
+    language_id_fk integer NOT NULL
+);
+
+
+ALTER TABLE assessment.categorytextresources OWNER TO vfkladmin;
+
+--
+-- TOC entry 219 (class 1259 OID 27281)
+-- Name: categorytextresources_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.categorytextresources_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.categorytextresources_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3742 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: categorytextresources_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.categorytextresources_id_seq OWNED BY assessment.categorytextresources.id;
+
+
+--
+-- TOC entry 211 (class 1259 OID 27197)
+-- Name: question; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.question (
+    question_id integer NOT NULL,
+    question character varying NOT NULL,
+    question_id_inform character varying(4) NOT NULL,
+    category_id_fk integer NOT NULL,
+    assessmenttype_id_fk integer NOT NULL
+);
+
+
+ALTER TABLE assessment.question OWNER TO vfkladmin;
+
+--
+-- TOC entry 224 (class 1259 OID 27325)
+-- Name: questiontextresources; Type: TABLE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE TABLE assessment.questiontextresources (
+    text_id integer NOT NULL,
+    question_id_fk integer NOT NULL,
+    question character varying NOT NULL,
+    language_id_fk integer NOT NULL
+);
+
+
+ALTER TABLE assessment.questiontextresources OWNER TO vfkladmin;
+
+--
+-- TOC entry 223 (class 1259 OID 27323)
+-- Name: questiontextresources_text_id_seq; Type: SEQUENCE; Schema: assessment; Owner: vfkladmin
+--
+
+CREATE SEQUENCE assessment.questiontextresources_text_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE assessment.questiontextresources_text_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3743 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: questiontextresources_text_id_seq; Type: SEQUENCE OWNED BY; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER SEQUENCE assessment.questiontextresources_text_id_seq OWNED BY assessment.questiontextresources.text_id;
+
+
+--
+-- TOC entry 214 (class 1259 OID 27226)
+-- Name: invitations; Type: TABLE; Schema: invitations; Owner: vfkladmin
+--
+
+CREATE TABLE invitations.invitations (
+    user_id_fk integer NOT NULL,
+    gv_id character varying NOT NULL,
+    frist character varying,
+    laeremiddel character varying,
+    laereplan character varying,
+    mottaker_eposter character varying,
+    opprettet_dato character varying
+);
+
+
+ALTER TABLE invitations.invitations OWNER TO vfkladmin;
+
+--
+-- TOC entry 203 (class 1259 OID 27146)
+-- Name: VersionInfo; Type: TABLE; Schema: public; Owner: vfkladmin
+--
+
+CREATE TABLE public."VersionInfo" (
+    "Version" bigint NOT NULL,
+    "AppliedOn" timestamp without time zone,
+    "Description" character varying(1024)
+);
+
+
+ALTER TABLE public."VersionInfo" OWNER TO vfkladmin;
+
+--
+-- TOC entry 205 (class 1259 OID 27158)
+-- Name: assessmenttype; Type: TABLE; Schema: public; Owner: vfkladmin
+--
+
+CREATE TABLE public.assessmenttype (
+    assessmenttype_id integer NOT NULL,
+    name character varying,
+    description character varying
+);
+
+
+ALTER TABLE public.assessmenttype OWNER TO vfkladmin;
+
+--
+-- TOC entry 204 (class 1259 OID 27156)
+-- Name: assessmenttype_assessmenttype_id_seq; Type: SEQUENCE; Schema: public; Owner: vfkladmin
+--
+
+CREATE SEQUENCE public.assessmenttype_assessmenttype_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.assessmenttype_assessmenttype_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3803 (class 0 OID 0)
+-- Dependencies: 204
+-- Name: assessmenttype_assessmenttype_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: vfkladmin
+--
+
+ALTER SEQUENCE public.assessmenttype_assessmenttype_id_seq OWNED BY public.assessmenttype.assessmenttype_id;
+
+
+--
+-- TOC entry 206 (class 1259 OID 27167)
+-- Name: languagetype; Type: TABLE; Schema: public; Owner: vfkladmin
+--
+
+CREATE TABLE public.languagetype (
+    language_id integer NOT NULL,
+    language_code character varying NOT NULL,
+    language_title character varying NOT NULL
+);
+
+
+ALTER TABLE public.languagetype OWNER TO vfkladmin;
+
+--
+-- TOC entry 213 (class 1259 OID 27217)
+-- Name: userprofile; Type: TABLE; Schema: userprofile; Owner: vfkladmin
+--
+
+CREATE TABLE userprofile.userprofile (
+    user_id integer NOT NULL,
+    feide_id character varying,
+    personnummer integer,
+    name character varying
+);
+
+
+ALTER TABLE userprofile.userprofile OWNER TO vfkladmin;
+
+--
+-- TOC entry 212 (class 1259 OID 27215)
+-- Name: userprofile_user_id_seq; Type: SEQUENCE; Schema: userprofile; Owner: vfkladmin
+--
+
+CREATE SEQUENCE userprofile.userprofile_user_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE userprofile.userprofile_user_id_seq OWNER TO vfkladmin;
+
+--
+-- TOC entry 3804 (class 0 OID 0)
+-- Dependencies: 212
+-- Name: userprofile_user_id_seq; Type: SEQUENCE OWNED BY; Schema: userprofile; Owner: vfkladmin
+--
+
+ALTER SEQUENCE userprofile.userprofile_user_id_seq OWNED BY userprofile.userprofile.user_id;
+
+
+--
+-- TOC entry 3544 (class 2604 OID 27260)
+-- Name: answers id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answers ALTER COLUMN id SET DEFAULT nextval('assessment.answers_id_seq'::regclass);
+
+
+--
+-- TOC entry 3541 (class 2604 OID 27191)
+-- Name: answertype answertype_id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertype ALTER COLUMN answertype_id SET DEFAULT nextval('assessment.answertype_answertype_id_seq'::regclass);
+
+
+--
+-- TOC entry 3546 (class 2604 OID 27307)
+-- Name: answertypetextresources id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertypetextresources ALTER COLUMN id SET DEFAULT nextval('assessment.answertypetextresources_id_seq'::regclass);
+
+
+--
+-- TOC entry 3543 (class 2604 OID 27239)
+-- Name: assessment assessment_id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.assessment ALTER COLUMN assessment_id SET DEFAULT nextval('assessment.assessment_assessment_id_seq'::regclass);
+
+
+--
+-- TOC entry 3540 (class 2604 OID 27180)
+-- Name: category category_id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.category ALTER COLUMN category_id SET DEFAULT nextval('assessment.category_category_id_seq'::regclass);
+
+
+--
+-- TOC entry 3545 (class 2604 OID 27286)
+-- Name: categorytextresources id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.categorytextresources ALTER COLUMN id SET DEFAULT nextval('assessment.categorytextresources_id_seq'::regclass);
+
+
+--
+-- TOC entry 3547 (class 2604 OID 27328)
+-- Name: questiontextresources text_id; Type: DEFAULT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.questiontextresources ALTER COLUMN text_id SET DEFAULT nextval('assessment.questiontextresources_text_id_seq'::regclass);
+
+
+--
+-- TOC entry 3539 (class 2604 OID 27161)
+-- Name: assessmenttype assessmenttype_id; Type: DEFAULT; Schema: public; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY public.assessmenttype ALTER COLUMN assessmenttype_id SET DEFAULT nextval('public.assessmenttype_assessmenttype_id_seq'::regclass);
+
+
+--
+-- TOC entry 3542 (class 2604 OID 27220)
+-- Name: userprofile user_id; Type: DEFAULT; Schema: userprofile; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY userprofile.userprofile ALTER COLUMN user_id SET DEFAULT nextval('userprofile.userprofile_user_id_seq'::regclass);
+
+
+--
+-- TOC entry 3566 (class 2606 OID 27265)
+-- Name: answers answers_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answers
+    ADD CONSTRAINT answers_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3556 (class 2606 OID 27196)
+-- Name: answertype answertype_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertype
+    ADD CONSTRAINT answertype_pkey PRIMARY KEY (answertype_id);
+
+
+--
+-- TOC entry 3570 (class 2606 OID 27312)
+-- Name: answertypetextresources answertypetextresources_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertypetextresources
+    ADD CONSTRAINT answertypetextresources_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3564 (class 2606 OID 27244)
+-- Name: assessment assessment_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.assessment
+    ADD CONSTRAINT assessment_pkey PRIMARY KEY (assessment_id);
+
+
+--
+-- TOC entry 3554 (class 2606 OID 27185)
+-- Name: category category_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.category
+    ADD CONSTRAINT category_pkey PRIMARY KEY (category_id);
+
+
+--
+-- TOC entry 3568 (class 2606 OID 27291)
+-- Name: categorytextresources categorytextresources_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.categorytextresources
+    ADD CONSTRAINT categorytextresources_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3558 (class 2606 OID 27204)
+-- Name: question question_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.question
+    ADD CONSTRAINT question_pkey PRIMARY KEY (question_id);
+
+
+--
+-- TOC entry 3572 (class 2606 OID 27333)
+-- Name: questiontextresources questiontextresources_pkey; Type: CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.questiontextresources
+    ADD CONSTRAINT questiontextresources_pkey PRIMARY KEY (text_id);
+
+
+--
+-- TOC entry 3562 (class 2606 OID 27233)
+-- Name: invitations invitations_pkey; Type: CONSTRAINT; Schema: invitations; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY invitations.invitations
+    ADD CONSTRAINT invitations_pkey PRIMARY KEY (gv_id);
+
+
+--
+-- TOC entry 3550 (class 2606 OID 27166)
+-- Name: assessmenttype assessmenttype_pkey; Type: CONSTRAINT; Schema: public; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY public.assessmenttype
+    ADD CONSTRAINT assessmenttype_pkey PRIMARY KEY (assessmenttype_id);
+
+
+--
+-- TOC entry 3552 (class 2606 OID 27174)
+-- Name: languagetype languagetype_pkey; Type: CONSTRAINT; Schema: public; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY public.languagetype
+    ADD CONSTRAINT languagetype_pkey PRIMARY KEY (language_id);
+
+
+--
+-- TOC entry 3560 (class 2606 OID 27225)
+-- Name: userprofile userprofile_pkey; Type: CONSTRAINT; Schema: userprofile; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY userprofile.userprofile
+    ADD CONSTRAINT userprofile_pkey PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 3548 (class 1259 OID 27149)
+-- Name: UC_Version; Type: INDEX; Schema: public; Owner: vfkladmin
+--
+
+CREATE UNIQUE INDEX "UC_Version" ON public."VersionInfo" USING btree ("Version");
+
+
+--
+-- TOC entry 3577 (class 2606 OID 27276)
+-- Name: answers fk_answertype; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answers
+    ADD CONSTRAINT fk_answertype FOREIGN KEY (answertype_id_fk) REFERENCES assessment.answertype(answertype_id);
+
+
+--
+-- TOC entry 3582 (class 2606 OID 27313)
+-- Name: answertypetextresources fk_answertypeid; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertypetextresources
+    ADD CONSTRAINT fk_answertypeid FOREIGN KEY (answertype_id_fk) REFERENCES assessment.answertype(answertype_id);
+
+
+--
+-- TOC entry 3578 (class 2606 OID 27266)
+-- Name: answers fk_assessment; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answers
+    ADD CONSTRAINT fk_assessment FOREIGN KEY (assessment_id_fk) REFERENCES assessment.assessment(assessment_id);
+
+
+--
+-- TOC entry 3573 (class 2606 OID 27205)
+-- Name: question fk_category; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.question
+    ADD CONSTRAINT fk_category FOREIGN KEY (category_id_fk) REFERENCES assessment.category(category_id);
+
+
+--
+-- TOC entry 3580 (class 2606 OID 27292)
+-- Name: categorytextresources fk_categoryid; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.categorytextresources
+    ADD CONSTRAINT fk_categoryid FOREIGN KEY (category_id_fk) REFERENCES assessment.category(category_id);
+
+
+--
+-- TOC entry 3575 (class 2606 OID 27250)
+-- Name: assessment fk_groupid; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.assessment
+    ADD CONSTRAINT fk_groupid FOREIGN KEY (groupassessment_id_fk) REFERENCES invitations.invitations(gv_id);
+
+
+--
+-- TOC entry 3583 (class 2606 OID 27318)
+-- Name: answertypetextresources fk_language_answertype; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answertypetextresources
+    ADD CONSTRAINT fk_language_answertype FOREIGN KEY (language_id_fk) REFERENCES public.languagetype(language_id);
+
+
+--
+-- TOC entry 3581 (class 2606 OID 27297)
+-- Name: categorytextresources fk_language_category; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.categorytextresources
+    ADD CONSTRAINT fk_language_category FOREIGN KEY (language_id_fk) REFERENCES public.languagetype(language_id);
+
+
+--
+-- TOC entry 3584 (class 2606 OID 27334)
+-- Name: questiontextresources fk_language_question; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.questiontextresources
+    ADD CONSTRAINT fk_language_question FOREIGN KEY (language_id_fk) REFERENCES public.languagetype(language_id);
+
+
+--
+-- TOC entry 3579 (class 2606 OID 27271)
+-- Name: answers fk_question; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.answers
+    ADD CONSTRAINT fk_question FOREIGN KEY (question_id_fk) REFERENCES assessment.question(question_id);
+
+
+--
+-- TOC entry 3574 (class 2606 OID 27210)
+-- Name: question fk_question_assessmenttype; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.question
+    ADD CONSTRAINT fk_question_assessmenttype FOREIGN KEY (assessmenttype_id_fk) REFERENCES public.assessmenttype(assessmenttype_id);
+
+
+--
+-- TOC entry 3576 (class 2606 OID 27245)
+-- Name: assessment fk_user; Type: FK CONSTRAINT; Schema: assessment; Owner: vfkladmin
+--
+
+ALTER TABLE ONLY assessment.assessment
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id_fk) REFERENCES userprofile.userprofile(user_id);
+
+
+--
+-- TOC entry 3720 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: azure_pg_admin
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- TOC entry 3721 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: FUNCTION pg_replication_origin_advance(text, pg_lsn); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_advance(text, pg_lsn) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3722 (class 0 OID 0)
+-- Dependencies: 232
+-- Name: FUNCTION pg_replication_origin_create(text); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_create(text) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3723 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: FUNCTION pg_replication_origin_drop(text); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_drop(text) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3724 (class 0 OID 0)
+-- Dependencies: 234
+-- Name: FUNCTION pg_replication_origin_oid(text); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_oid(text) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3725 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: FUNCTION pg_replication_origin_progress(text, boolean); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_progress(text, boolean) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3726 (class 0 OID 0)
+-- Dependencies: 236
+-- Name: FUNCTION pg_replication_origin_session_is_setup(); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_is_setup() TO azure_pg_admin;
+
+
+--
+-- TOC entry 3727 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: FUNCTION pg_replication_origin_session_progress(boolean); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_progress(boolean) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3728 (class 0 OID 0)
+-- Dependencies: 238
+-- Name: FUNCTION pg_replication_origin_session_reset(); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_reset() TO azure_pg_admin;
+
+
+--
+-- TOC entry 3729 (class 0 OID 0)
+-- Dependencies: 239
+-- Name: FUNCTION pg_replication_origin_session_setup(text); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_setup(text) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3730 (class 0 OID 0)
+-- Dependencies: 240
+-- Name: FUNCTION pg_replication_origin_xact_reset(); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_xact_reset() TO azure_pg_admin;
+
+
+--
+-- TOC entry 3731 (class 0 OID 0)
+-- Dependencies: 241
+-- Name: FUNCTION pg_replication_origin_xact_setup(pg_lsn, timestamp with time zone); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_xact_setup(pg_lsn, timestamp with time zone) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3732 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: FUNCTION pg_show_replication_origin_status(OUT local_id oid, OUT external_id text, OUT remote_lsn pg_lsn, OUT local_lsn pg_lsn); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_show_replication_origin_status(OUT local_id oid, OUT external_id text, OUT remote_lsn pg_lsn, OUT local_lsn pg_lsn) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3733 (class 0 OID 0)
+-- Dependencies: 242
+-- Name: FUNCTION pg_stat_reset(); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_reset() TO azure_pg_admin;
+
+
+--
+-- TOC entry 3734 (class 0 OID 0)
+-- Dependencies: 243
+-- Name: FUNCTION pg_stat_reset_shared(text); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_reset_shared(text) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3735 (class 0 OID 0)
+-- Dependencies: 245
+-- Name: FUNCTION pg_stat_reset_single_function_counters(oid); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_reset_single_function_counters(oid) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3736 (class 0 OID 0)
+-- Dependencies: 244
+-- Name: FUNCTION pg_stat_reset_single_table_counters(oid); Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_reset_single_table_counters(oid) TO azure_pg_admin;
+
+
+--
+-- TOC entry 3744 (class 0 OID 0)
+-- Dependencies: 97
+-- Name: COLUMN pg_config.name; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(name) ON TABLE pg_catalog.pg_config TO azure_pg_admin;
+
+
+--
+-- TOC entry 3745 (class 0 OID 0)
+-- Dependencies: 97
+-- Name: COLUMN pg_config.setting; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(setting) ON TABLE pg_catalog.pg_config TO azure_pg_admin;
+
+
+--
+-- TOC entry 3746 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.line_number; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(line_number) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3747 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.type; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(type) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3748 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.database; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(database) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3749 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.user_name; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(user_name) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3750 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.address; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(address) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3751 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.netmask; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(netmask) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3752 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.auth_method; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(auth_method) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3753 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.options; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(options) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3754 (class 0 OID 0)
+-- Dependencies: 94
+-- Name: COLUMN pg_hba_file_rules.error; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(error) ON TABLE pg_catalog.pg_hba_file_rules TO azure_pg_admin;
+
+
+--
+-- TOC entry 3755 (class 0 OID 0)
+-- Dependencies: 137
+-- Name: COLUMN pg_replication_origin_status.local_id; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(local_id) ON TABLE pg_catalog.pg_replication_origin_status TO azure_pg_admin;
+
+
+--
+-- TOC entry 3756 (class 0 OID 0)
+-- Dependencies: 137
+-- Name: COLUMN pg_replication_origin_status.external_id; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(external_id) ON TABLE pg_catalog.pg_replication_origin_status TO azure_pg_admin;
+
+
+--
+-- TOC entry 3757 (class 0 OID 0)
+-- Dependencies: 137
+-- Name: COLUMN pg_replication_origin_status.remote_lsn; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(remote_lsn) ON TABLE pg_catalog.pg_replication_origin_status TO azure_pg_admin;
+
+
+--
+-- TOC entry 3758 (class 0 OID 0)
+-- Dependencies: 137
+-- Name: COLUMN pg_replication_origin_status.local_lsn; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(local_lsn) ON TABLE pg_catalog.pg_replication_origin_status TO azure_pg_admin;
+
+
+--
+-- TOC entry 3759 (class 0 OID 0)
+-- Dependencies: 98
+-- Name: COLUMN pg_shmem_allocations.name; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(name) ON TABLE pg_catalog.pg_shmem_allocations TO azure_pg_admin;
+
+
+--
+-- TOC entry 3760 (class 0 OID 0)
+-- Dependencies: 98
+-- Name: COLUMN pg_shmem_allocations.off; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(off) ON TABLE pg_catalog.pg_shmem_allocations TO azure_pg_admin;
+
+
+--
+-- TOC entry 3761 (class 0 OID 0)
+-- Dependencies: 98
+-- Name: COLUMN pg_shmem_allocations.size; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(size) ON TABLE pg_catalog.pg_shmem_allocations TO azure_pg_admin;
+
+
+--
+-- TOC entry 3762 (class 0 OID 0)
+-- Dependencies: 98
+-- Name: COLUMN pg_shmem_allocations.allocated_size; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(allocated_size) ON TABLE pg_catalog.pg_shmem_allocations TO azure_pg_admin;
+
+
+--
+-- TOC entry 3763 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.starelid; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(starelid) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3764 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staattnum; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staattnum) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3765 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stainherit; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stainherit) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3766 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanullfrac; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanullfrac) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3767 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stawidth; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stawidth) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3768 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stadistinct; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stadistinct) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3769 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stakind1; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stakind1) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3770 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stakind2; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stakind2) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3771 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stakind3; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stakind3) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3772 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stakind4; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stakind4) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3773 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stakind5; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stakind5) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3774 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staop1; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staop1) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3775 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staop2; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staop2) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3776 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staop3; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staop3) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3777 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staop4; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staop4) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3778 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.staop5; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(staop5) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3779 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stacoll1; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stacoll1) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3780 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stacoll2; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stacoll2) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3781 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stacoll3; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stacoll3) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3782 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stacoll4; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stacoll4) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3783 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stacoll5; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stacoll5) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3784 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanumbers1; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanumbers1) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3785 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanumbers2; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanumbers2) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3786 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanumbers3; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanumbers3) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3787 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanumbers4; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanumbers4) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3788 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stanumbers5; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stanumbers5) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3789 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stavalues1; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stavalues1) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3790 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stavalues2; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stavalues2) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3791 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stavalues3; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stavalues3) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3792 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stavalues4; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stavalues4) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3793 (class 0 OID 0)
+-- Dependencies: 42
+-- Name: COLUMN pg_statistic.stavalues5; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(stavalues5) ON TABLE pg_catalog.pg_statistic TO azure_pg_admin;
+
+
+--
+-- TOC entry 3794 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.oid; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(oid) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3795 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subdbid; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subdbid) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3796 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subname; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subname) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3797 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subowner; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subowner) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3798 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subenabled; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subenabled) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3799 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subconninfo; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subconninfo) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3800 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subslotname; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subslotname) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3801 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subsynccommit; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subsynccommit) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+--
+-- TOC entry 3802 (class 0 OID 0)
+-- Dependencies: 67
+-- Name: COLUMN pg_subscription.subpublications; Type: ACL; Schema: pg_catalog; Owner: azuresu
+--
+
+GRANT SELECT(subpublications) ON TABLE pg_catalog.pg_subscription TO azure_pg_admin;
+
+
+-- Completed on 2023-03-24 11:34:37 CET
+
+--
+-- PostgreSQL database dump complete
+--
+
