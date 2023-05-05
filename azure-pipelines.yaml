@@ -14,7 +14,7 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
-  - stage: Build function
+  - stage: Build_function
     pool:
       vmImage: 'windows-latest'
 
