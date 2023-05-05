@@ -59,7 +59,7 @@ stages:
 
   - stage: BuildVfklMigrator
     pool: 
-      vmimagename: 'ubuntu-latest'
+      vmimagename: ubuntu-latest
     jobs:
       - job:
         steps:
