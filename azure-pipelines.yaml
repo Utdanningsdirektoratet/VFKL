@@ -57,7 +57,7 @@ stages:
             PathtoPublish: '$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip'
             artifactName: 'drop'
 
-  - stage: Build vfklMigrator
+  - stage: BuildVfklMigrator
     pool: 
       vmimagename: 'ubuntu-latest'
     jobs:
