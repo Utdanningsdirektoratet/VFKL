@@ -27,7 +27,7 @@ stages:
             repository: $(vfklMigratorRepository)
             dockerfile: $(vfklMigratorDockerfilePath)
             containerRegistry: $(dockerRegistryServiceConnection)
-            buildContext: '.'
+            buildContext: 'vfkl.Migrator'
             ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
               tags: |
                 latest
