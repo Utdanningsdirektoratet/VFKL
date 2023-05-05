@@ -9,7 +9,7 @@ trigger:
 variables:
   dockerRegistryServiceConnection: 'ACR-VFKL-SC'
   vfklmigratorrepository: 'vfkl-migrator'  
-  vfklMigratorDockerfilePath: '$(Build.SourcesDirectory)/VFKL.Migrator/Dockerfile'  
+  vfklMigratorDockerfilePath: '$(Build.SourcesDirectory)/vfkl.Migrator/Dockerfile'  
   containerRegistry: 'acrvfkl.azurecr.io'  
   tag: '$(Build.BuildId)'
 
