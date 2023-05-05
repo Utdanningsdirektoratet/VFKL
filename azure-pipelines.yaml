@@ -14,7 +14,7 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
-  - stage: Build_function
+  - stage: BuildFunction
     pool:
       vmImage: 'windows-latest'
 
@@ -57,7 +57,7 @@ stages:
             PathtoPublish: '$(System.DefaultWorkingDirectory)/vfkl-$(Build.BuildId)_$(Build.SourceBranchName).zip'
             artifactName: 'drop'
 
-  - stage: Build vfkl_migrator
+  - stage: Build vfklMigrator
     pool: 
       vmimagename: 'ubuntu-latest'
     jobs:
