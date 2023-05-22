@@ -48,21 +48,21 @@ stages:
           displayName: 'dotnet restore'
           inputs:
             command: restore
-            projects: '**/*.sln'
+            projects: '**/VFKLCore.sln'
 
         - task: DotNetCoreCLI@2
           displayName: 'dotnet build'
           inputs:
               command: build
               arguments: '--configuration Release' 
-              projects: '**/*.sln'
+              projects: '**/VFKLCore.sln'
 
         - task: DotNetCoreCLI@2
           displayName: 'dotnet publish'
           inputs:
             command: publish
             arguments: '--configuration Release --output publish_output'
-            projects: '**/*.sln'
+            projects: '**/VFKLCore.sln'
             publishWebProjects: false
             modifyOutputPath: false
             zipAfterPublish: false
