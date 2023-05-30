@@ -49,20 +49,29 @@ namespace VFKLCore.Functions.Services.Implementation
         {
             string apiUrl = $"{_settings.AppsBaseUrl}instances/{instanceId}";
 
-            string altinnToken = await _authenticationService.GetAltinnToken();
+            try
+            {
+                string altinnToken = await _authenticationService.GetAltinnToken();
 
-            HttpResponseMessage response = await _client.GetAsync(altinnToken, apiUrl);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                string instanceData = await response.Content.ReadAsStringAsync();
-                Instance instance = JsonConvert.DeserializeObject<Instance>(instanceData);
-                return instance;
+                HttpResponseMessage response = await _client.GetAsync(altinnToken, apiUrl);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    string instanceData = await response.Content.ReadAsStringAsync();
+                    Instance instance = JsonConvert.DeserializeObject<Instance>(instanceData);
+                    return instance;
+                }
+                else
+                {
+                    _logger.LogError($"Unable to fetch instance with instance id {instanceId} {response.StatusCode} {apiUrl}");
+                    throw new ApplicationException();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError($"Unable to fetch instance with instance id {instanceId} " + response.StatusCode + " " + apiUrl);
-                throw new ApplicationException();
+                _logger.LogError(ex, $"Unable to fetch instance with instance id {instanceId}");
+                throw;
             }
+
         }
 
         /// <inheritdoc/>
