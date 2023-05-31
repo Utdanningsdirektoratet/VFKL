@@ -325,7 +325,7 @@ namespace VFKLCore.Functions
                             invitation_body.Append($"<a href=\"{_settings.EmailUrl}{invitation.GruppeVurderingsID}\">Start vurderingen din av {invitation.Læremiddel}</a><br><br>");
                             invitation_body.Append($"Har du allerede startet vurderingen av {invitation.Læremiddel} fra lenken over, finner du <b>påbegynte vurderinger</b> her <a href=\"https://udir.apps.altinn.no/udir/vfkl/\">https://udir.apps.altinn.no/udir/vfkl/</a><br><br>");
 
-                            invitation_body.Append($"{invitation.Navn} vil fortløpende få tilgang til alle vurderingene av læremiddelet som er gjort av deg og dine kollegaer.");
+                            invitation_body.Append($"{invitation.Navn} vil fortløpende få tilgang til alle vurderingene av læremiddelet som er gjort av deg og dine kollegaer.<br><br>");
 
                             // invitation_body.Append($"Bruk lenken over når du skal gjøre en vurdering. Dersom du åpner skjemaet for individuell vurdering, vil dine svar ikke bli en del av vurderingene som inngår i et kollektivt arbeid sammen med kollegaer.<br><br>");                           
                             invitation_body.Append($"Du kan ikke svare på denne eposten. Har du spørsmål, ta kontakt med {invitation.Navn}. Dersom du opplever tekniske utfordringer, kontakt vfklsupport@udir.no");
