@@ -283,22 +283,10 @@ namespace VFKLCore.Functions
 
                     if (invitation != null)
                     {
-                        string assessmenttype = "Veileder for vurdering av kvalitet i  læremidler i "; // For use in email text
-
-                        switch (invitation.VurderingsType)
+                        string assessmenttypeString = invitation.VurderingsType.ToLower(); // For use in email text
+                        if (assessmenttypeString == "allefag")
                         {
-                            case "1":
-                                assessmenttype = assessmenttype + "alle fag";
-                                break;
-                            case "2":
-                                assessmenttype = assessmenttype + "norsk";
-                                break;
-                            case "3":
-                                assessmenttype = assessmenttype + "engelsk";
-                                break;
-                            case "4":
-                                assessmenttype = assessmenttype + "matematikk";
-                                break;
+                            assessmenttypeString = "alle fag";
                         }
 
                         await SaveGroupInvitation(invitation);
@@ -333,7 +321,7 @@ namespace VFKLCore.Functions
                                 invitation_body.Append($"<li>Frist for vurderingen er: {invitation.VurderingsFrist} </li></ul>");
                             }
 
-                            invitation_body.Append($"For å vurdere læremiddelet bruker vi verktøyet {assessmenttype} fra Utdanningsdirektoratet. Verktøyet er i Altinn og du logger inn med din Feide-konto.<br><br>");
+                            invitation_body.Append($"For å vurdere læremiddelet bruker vi verktøyet Veileder for vurdering av kvalitet i  læremidler i {assessmenttypeString} fra Utdanningsdirektoratet. Verktøyet er i Altinn og du logger inn med din Feide-konto.<br><br>");
                             invitation_body.Append($"<a href=\"{_settings.EmailUrl}{invitation.GruppeVurderingsID}\">Start vurderingen din av {invitation.Læremiddel}</a><br><br>");
                             invitation_body.Append($"Har du allerede startet vurderingen av {invitation.Læremiddel} fra lenken over, finner du <b>påbegynte vurderinger</b> her <a href=\"https://udir.apps.altinn.no/udir/vfkl/\">https://udir.apps.altinn.no/udir/vfkl/</a><br><br>");
 
