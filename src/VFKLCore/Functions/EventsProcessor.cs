@@ -284,9 +284,9 @@ namespace VFKLCore.Functions
                     if (invitation != null)
                     {
                         string assessmenttypeString = invitation.VurderingsType.ToLower(); // For use in email text
-                        if (assessmenttypeString == "allefag") 
-                        { 
-                            assessmenttypeString = "alle fag"; 
+                        if (assessmenttypeString == "allefag")
+                        {
+                            assessmenttypeString = "alle fag";
                         }
 
                         await SaveGroupInvitation(invitation);
@@ -307,25 +307,27 @@ namespace VFKLCore.Functions
                             StringBuilder invitation_body = new StringBuilder();
 
                             invitation_body.Append("Hei<br><br>");
-                            invitation_body.Append($"{invitation.Navn} har invitert deg til å delta i en vurdering av et læremiddel.<br><br>");
-                            invitation_body.Append($"Læremiddelet skal vurderes for bruk iht. følgende læreplan: {invitation.Læreplan} ({invitation.LæreplanKode})<br>");
-                            invitation_body.Append($"Læremiddelet som skal vurderes er: {invitation.Læremiddel}<br><br>");
-                            invitation_body.Append($"For å vurdere læremiddelet brukes tjenesten «Veileder for vurdering av læremidler i {assessmenttypeString}» fra Utdanningsdirektoratet. Når du følger lenken for å starte din vurdering blir du bedt om å logge inn på din Feide konto for å bruke tjenesten.<br><br>");
+                            invitation_body.Append($"{invitation.Navn} har invitert deg til å delta i vurderingen av et læremiddel.<br><br>");
+                            invitation_body.Append($"<ul><li>Læremiddelet skal vurderes for bruk iht. følgende læreplan: {invitation.Læreplan} ({invitation.LæreplanKode})</li>");
+                            invitation_body.Append($"<li>Læremiddelet som skal vurderes er: {invitation.Læremiddel}</li>");
 
                             DateTime frist;
                             if (DateTime.TryParse(invitation.VurderingsFrist, out frist))
                             {
-                                invitation_body.Append($"Frist for vurderingen er: {frist.ToString("D", new CultureInfo("no"))}<br><br>");
+                                invitation_body.Append($"<li>Frist for vurderingen er: {frist.ToString("D", new CultureInfo("no"))}</li></ul>");
                             }
                             else
                             {
-                                invitation_body.Append($"Frist for vurderingen er: {invitation.VurderingsFrist} <br><br>");
+                                invitation_body.Append($"<li>Frist for vurderingen er: {invitation.VurderingsFrist} </li></ul>");
                             }
 
-                            invitation_body.Append($"<a href=\"{_settings.EmailUrl}{invitation.GruppeVurderingsID}\">Klikk her for å starte din vurdering</a><br><br>");
-                            invitation_body.Append("Bruk lenken over når du skal gjøre en vurdering. Dersom du åpner skjemaet for individuell vurdering, vil dine svar ikke bli en del av vurderingene som inngår i et kollektivt arbeid sammen med kollegaer.<br><br>");
-                            invitation_body.Append("Dersom du allerede har startet vurderingen fra lenken over og ønsker å fortsette, finner du dine påbegynte vurderinger her <a href=\"https://udir.apps.altinn.no/udir/vfkl/\">https://udir.apps.altinn.no/udir/vfkl/</a><br><br>");
-                            invitation_body.Append($"Du kan ikke svare på denne eposten. Dersom du har spørsmål, ta kontakt med {invitation.Navn}. Dersom du opplever tekniske utfordringer, kontakt vfklsupport@udir.no");
+                            invitation_body.Append($"For å vurdere læremiddelet bruker vi verktøyet Veileder for vurdering av kvalitet i  læremidler i {assessmenttypeString} fra Utdanningsdirektoratet. Verktøyet er i Altinn og du logger inn med din Feide-konto.<br><br>");
+                            invitation_body.Append($"<a href=\"{_settings.EmailUrl}{invitation.GruppeVurderingsID}\">Start vurderingen din av {invitation.Læremiddel}</a><br><br>");
+                            invitation_body.Append($"Har du allerede startet vurderingen av {invitation.Læremiddel} fra lenken over, finner du <b>påbegynte vurderinger</b> her <a href=\"https://udir.apps.altinn.no/udir/vfkl/\">https://udir.apps.altinn.no/udir/vfkl/</a><br><br>");
+
+                            invitation_body.Append($"{invitation.Navn} vil fortløpende få tilgang til alle vurderingene av læremiddelet som er gjort av deg og dine kollegaer.<br><br>");
+
+                            invitation_body.Append($"Du kan ikke svare på denne eposten. Har du spørsmål, ta kontakt med {invitation.Navn}. Dersom du opplever tekniske utfordringer, kontakt vfklsupport@udir.no");
 
                             // Buliding the confirmation text that is to be sent to the owner of the group assessment
 
